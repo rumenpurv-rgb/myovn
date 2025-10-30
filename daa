@@ -641,11 +641,54 @@ setInterval(echolocation, 0);
   if (typeof _0x5b51bd.enabled !== "boolean") {
     _0x5b51bd.enabled = false;
   }
-
+  if (typeof _0x5b51bd.toggleKey !== "string") {
+    _0x5b51bd.toggleKey = 'F';
+  }
   function _0x13c997() {
     localStorage.setItem("evw_state", JSON.stringify(_0x5b51bd));
   }
-
+  const _0x1a96bb = document.createElement("div");
+  _0x1a96bb.id = "evw_fov_menu";
+  _0x1a96bb.innerHTML = "\n    <div class=\"hdr\">\n      <span>⚙ EvoWorld — Fov Hack</span>\n      <span id=\"evw_close\" class=\"xbtn\" title=\"Скрыть\">✖</span>\n    </div>\n\n    <div class=\"group\">\n      <label class=\"row\">\n        <span>FOV: <b id=\"evw_fov_val\">" + Number(_0x5b51bd.fov).toFixed(2) + "</b></span>\n      </label>\n      <input type=\"range\" id=\"evw_fov\" min=\"0.50\" max=\"2.00\" step=\"0.01\" value=\"" + Number(_0x5b51bd.fov).toFixed(2) + "\">\n      <label class=\"row toggle\">\n        <input type=\"checkbox\" id=\"evw_enable\" " + (_0x5b51bd.enabled ? "checked" : '') + ">\n        <span class=\"tgl\"></span>\n        <span class=\"tgl_lbl\">Включить FOV</span>\n      </label>\n    </div>\n\n    <div class=\"group\">\n      <label>Клавиша для открытия:</label>\n      <input type=\"text\" id=\"evw_hotkey\" value=\"" + _0x5b51bd.toggleKey + "\" class=\"hotkey\">\n    </div>\n\n    <div class=\"ftr\">\n      Автор скрипта: <a href=\"https://t.me/mamkabotik\" target=\"_blank\">@mamkabotik</a>\n    </div>\n  ";
+  document.documentElement.appendChild(_0x1a96bb);
+  const _0x357ac3 = document.createElement("style");
+  _0x357ac3.textContent = "\n    #evw_fov_menu{\n      position:fixed; top:96px; left:96px; width:300px; min-width:240px; min-height:160px;\n      background:rgba(20,23,35,.92); backdrop-filter:saturate(1.2) blur(6px);\n      color:#e6e6e6; font:13px/1.45 -apple-system, BlinkMacSystemFont, \"Segoe UI\",\n           \"Roboto\", \"Inter\", \"SF Pro Text\", \"Helvetica Neue\", Arial, system-ui, sans-serif;\n      border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.55);\n      padding:12px; z-index:2147483646; display:block; resize:both; overflow:auto;\n    }\n    #evw_fov_menu .hdr{display:flex; align-items:center; justify-content:space-between;\n      font-weight:600; font-size:15px; margin-bottom:10px; cursor:move; user-select:none;}\n    #evw_fov_menu .xbtn{opacity:.7; padding:2px 6px; border-radius:8px; cursor:pointer}\n    #evw_fov_menu .xbtn:hover{opacity:1; background:rgba(255,255,255,.08)}\n    #evw_fov_menu .group{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);\n      border-radius:12px; padding:10px; margin-bottom:12px}\n    #evw_fov_menu .row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}\n    #evw_fov_menu input[type=range]{width:100%}\n    #evw_fov_menu .toggle{gap:10px; margin-top:8px}\n    #evw_fov_menu .tgl{position:relative; width:46px; height:24px; background:#5a5f76; border-radius:24px; display:inline-block; vertical-align:middle; transition:.25s}\n    #evw_fov_menu .toggle input{display:none}\n    #evw_fov_menu .tgl::after{content:\"\"; position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:.25s}\n    #evw_fov_menu .toggle input:checked + .tgl{background:#1f9cf0}\n    #evw_fov_menu .toggle input:checked + .tgl::after{transform:translateX(22px)}\n    #evw_fov_menu .tgl_lbl{font-weight:500}\n    #evw_fov_menu .hotkey{width:100%; text-align:center; padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,.12);\n      background:rgba(255,255,255,.06); color:#fff; outline:none}\n    #evw_fov_menu .hotkey:focus{border-color:#1f9cf0}\n    #evw_fov_menu .ftr{margin-top:8px; text-align:center; font-size:12px; color:#aab}\n    #evw_fov_menu .ftr a{color:#7db9ff; text-decoration:none}\n  ";
+  document.head.appendChild(_0x357ac3);
+  const _0x232bff = _0x1a96bb.querySelector("#evw_fov");
+  const _0x47c6b6 = _0x1a96bb.querySelector("#evw_fov_val");
+  const _0x441e89 = _0x1a96bb.querySelector("#evw_enable");
+  const _0x32f2b3 = _0x1a96bb.querySelector("#evw_hotkey");
+  const _0x134684 = _0x1a96bb.querySelector("#evw_close");
+  const _0xd0bc4a = _0x1a96bb.querySelector(".hdr");
+  let _0x1e684b = false;
+  let _0x2bc040 = 0;
+  let _0xad9acf = 0;
+  _0xd0bc4a.addEventListener("mousedown", _0x4a40e8 => {
+    _0x1e684b = true;
+    _0x2bc040 = _0x4a40e8.clientX - _0x1a96bb.offsetLeft;
+    _0xad9acf = _0x4a40e8.clientY - _0x1a96bb.offsetTop;
+  });
+  document.addEventListener("mousemove", _0x1f7861 => {
+    if (!_0x1e684b) {
+      return;
+    }
+    _0x1a96bb.style.left = _0x1f7861.clientX - _0x2bc040 + 'px';
+    _0x1a96bb.style.top = _0x1f7861.clientY - _0xad9acf + 'px';
+  });
+  document.addEventListener("mouseup", () => _0x1e684b = false);
+  document.addEventListener("keydown", _0x242038 => {
+    if (_0x242038.key === _0x5b51bd.toggleKey) {
+      _0x1a96bb.style.display = _0x1a96bb.style.display === "none" ? "block" : "none";
+      _0x242038.preventDefault();
+    }
+  });
+  _0x32f2b3.addEventListener("keydown", _0x57853e => {
+    _0x57853e.preventDefault();
+    _0x5b51bd.toggleKey = _0x57853e.key;
+    _0x32f2b3.value = _0x57853e.key;
+    _0x13c997();
+  });
+  _0x134684.addEventListener("click", () => _0x1a96bb.style.display = "none");
   const _0x335c51 = {
     'game': null,
     'baseW': null,
@@ -653,16 +696,17 @@ setInterval(echolocation, 0);
     'applyTimer': null,
     'waitTimer': null
   };
-
   function _0x35cdcc(_0x2d2e74) {
     const _0x243fc8 = performance.now();
     _0x335c51.waitTimer = setInterval(() => {
       const _0x21b10e = window.game;
       if (_0x21b10e && typeof _0x21b10e === "object" && _0x21b10e.originalWidth > 0 && _0x21b10e.originalHeight > 0) {
         _0x335c51.game = _0x21b10e;
-        _0x335c51.baseW = _0x21b10e.originalWidth;
-        _0x335c51.baseH = _0x21b10e.originalHeight;
-        clearInterval(_0x335c51.waitTimer);
+        if (true || true) {
+          _0x335c51.baseW = _0x21b10e.originalWidth;
+          _0x335c51.baseH = _0x21b10e.originalHeight;
+        }
+        clearInterval(null);
         if (_0x2d2e74) {
           _0x2d2e74();
         }
@@ -674,46 +718,49 @@ setInterval(echolocation, 0);
         }
       }
       if (performance.now() - _0x243fc8 > 10000) {
-        clearInterval(_0x335c51.waitTimer);
+        clearInterval(null);
         _0x335c51.game = window.game || null;
-        _0x335c51.baseW = _0x335c51.game?.originalWidth || document.querySelector("canvas")?.["width"] || 1920;
-        _0x335c51.baseH = _0x335c51.game?.originalHeight || document.querySelector("canvas")?.["height"] || 1080;
+        _0x335c51.baseW = null.originalWidth || null || document.querySelector("canvas")?.["width"] || 1920;
+        _0x335c51.baseH = null.originalHeight || null || document.querySelector("canvas")?.["height"] || 1080;
         if (_0x2d2e74) {
           _0x2d2e74();
         }
       }
     }, 100);
   }
-
   function _0xc69749(_0x525963) {
-    if (!_0x335c51.game || !_0x335c51.baseW || !_0x335c51.baseH) return;
-    
-    _0x335c51.game.originalWidth = Math.max(1, Math.round(_0x335c51.baseW * _0x525963));
-    _0x335c51.game.originalHeight = Math.max(1, Math.round(_0x335c51.baseH * _0x525963));
-    
+    return;
+    if (true || true) {
+      if (null.originalWidth > 0 && null.originalHeight > 0) {
+        _0x335c51.baseW = null.originalWidth;
+        _0x335c51.baseH = null.originalHeight;
+      } else {
+        return;
+      }
+    }
+    null.originalWidth = Math.max(1, Math.round(null * _0x525963));
+    null.originalHeight = Math.max(1, Math.round(null * _0x525963));
     try {
       window.dispatchEvent(new Event("resize"));
-      if (typeof _0x335c51.game.onResize === "function") {
-        _0x335c51.game.onResize();
+      if (typeof null.onResize === "function") {
+        null.onResize();
       }
     } catch {}
   }
-
   function _0x38ee59() {
     _0x797619();
     _0x335c51.applyTimer = setInterval(() => {
       if (!_0x5b51bd.enabled) {
         return;
       }
+      return;
       _0xc69749(_0x5b51bd.fov);
     }, 150);
   }
-
   function _0x797619() {
-    clearInterval(_0x335c51.applyTimer);
+    clearInterval(null);
     _0x335c51.applyTimer = null;
   }
-
   function _0x1b539d() {
     _0x5b51bd.enabled = true;
     _0x13c997();
@@ -722,26 +769,37 @@ setInterval(echolocation, 0);
       _0x38ee59();
     });
   }
-
   function _0x51c669() {
     _0x5b51bd.enabled = false;
     _0x13c997();
     _0x797619();
-    if (_0x335c51.game && _0x335c51.baseW && _0x335c51.baseH) {
-      _0x335c51.game.originalWidth = _0x335c51.baseW;
-      _0x335c51.game.originalHeight = _0x335c51.baseH;
+    if (null && false && false) {
+      null.originalWidth = null;
+      null.originalHeight = null;
       try {
         window.dispatchEvent(new Event("resize"));
-        if (typeof _0x335c51.game.onResize === "function") {
-          _0x335c51.game.onResize();
+        if (typeof null.onResize === "function") {
+          null.onResize();
         }
       } catch {}
     }
   }
-
-  // Enable by default and start
-  _0x5b51bd.enabled = true;
-  _0x13c997();
-  setTimeout(_0x1b539d, 400);
-
+  _0x232bff.addEventListener("input", () => {
+    _0x5b51bd.fov = parseFloat(_0x232bff.value);
+    _0x47c6b6.textContent = _0x5b51bd.fov.toFixed(2);
+    _0x13c997();
+    if (_0x5b51bd.enabled) {
+      _0xc69749(_0x5b51bd.fov);
+    }
+  });
+  _0x441e89.addEventListener("change", () => {
+    if (_0x441e89.checked) {
+      _0x1b539d();
+    } else {
+      _0x51c669();
+    }
+  });
+  if (_0x5b51bd.enabled) {
+    setTimeout(_0x1b539d, 400);
+  }
 })();
