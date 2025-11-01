@@ -1,185 +1,125 @@
 // ==UserScript==
-// @name         GOD MODE Evo Autohitter - Ultimate Fusion
+// @name         AI-Enhanced Evo Autohitter
 // @namespace    http://tampermonkey.net/
-// @version      4.0
-// @author       fur + draggy + AI Fusion
+// @version      3.4
+// @author       baba yaga
 // @match        https://evoworld.io/
 // @icon         https://www.google.com/s2/favicons?sz=64&domain=evoworld.io
 // @grant        none
-// @description  ULTIMATE FUSION - Unbeatable AI + Perfect Timing + Predictive Analytics
+// @description  AI-enhanced autohit maintaining fast-fight dominance while conquering slow fights
 // ==/UserScript==
 
 (function() {
-    var flicking = false;
+    var flicking=false;
 
-    // ULTIMATE PRECISION HITBOX DATA
-    const height = {
-        'grimReaper': 156, 
-        'pumpkinGhost': 169, 
-        'ghostlyReaper': 165
+    const height={'grimReaper':156, 'pumpkinGhost':169, 'ghostlyReaper':165};
+
+    const hitRangeX={'grimReaper':{'grimReaper':138 , 'pumpkinGhost':125,'ghostlyReaper':108},
+                    'pumpkinGhost':{'grimReaper':161, 'pumpkinGhost':153, 'ghostlyReaper':108},
+                    'ghostlyReaper':{'grimReaper':97, 'pumpkinGhost':87, 'ghostlyReaper':108}
     };
 
-    const hitRangeX = {
-        'grimReaper': {'grimReaper': 138.257, 'pumpkinGhost': 125, 'ghostlyReaper': 108},
-        'pumpkinGhost': {'grimReaper': 161, 'pumpkinGhost': 153, 'ghostlyReaper': 108},
-        'ghostlyReaper': {'grimReaper': 97, 'pumpkinGhost': 87, 'ghostlyReaper': 108}
-    };
+    const distAdjustmentY={'grimReaper':8, 'pumpkinGhost':3, 'ghostlyReaper':1};
 
-    const distAdjustmentY = {'grimReaper': 8, 'pumpkinGhost': 3, 'ghostlyReaper': 1};
-
-    const hitBackRangeX = {
-        'grimReaper': {'grimReaper': 134, 'pumpkinGhost': 152, 'ghostlyReaper': 144},
-        'pumpkinGhost': {'grimReaper': 158, 'pumpkinGhost': 148, 'ghostlyReaper': 172},
-        'ghostlyReaper': {'grimReaper': 134, 'pumpkinGhost': 87, 'ghostlyReaper': 105}
+    const hitBackRangeX={'grimReaper':{'grimReaper':134, 'pumpkinGhost':152, 'ghostlyReaper':144},
+                    'pumpkinGhost':{'grimReaper':158, 'pumpkinGhost':148, 'ghostlyReaper':172},
+                    'ghostlyReaper':{'grimReaper':134, 'pumpkinGhost':87, 'ghostlyReaper':105}
     };
 
     const reaperList = new Set(['grimReaper', 'pumpkinGhost', 'ghostlyReaper']);
 
-    // ===== GOD MODE BATTLE INTELLIGENCE =====
-    class GodModeBattleAI {
+    // ===== AI BATTLE INTELLIGENCE SYSTEM =====
+    class BattleAI {
         constructor() {
             this.speedHistory = [];
             this.enemyBehaviorPattern = [];
-            this.combatHistory = [];
+            this.hitSuccessHistory = [];
             this.currentFightSpeed = 'fast';
             this.lastSpeedUpdate = Date.now();
-            this.enemyFlickPattern = { 
-                frequency: 0, 
-                lastFlick: 0, 
-                isActive: false,
-                patternType: 'none' // 'aggressive', 'defensive', 'mixed'
-            };
-            this.winRate = 1.0;
-            this.aggressionLevel = 0.5;
+            this.enemyFlickPattern = { frequency: 0, lastFlick: 0, isActive: false };
         }
 
         analyzeBattleContext(attacker, target) {
             const now = Date.now();
             
-            // ULTRA-PRECISE SPEED CALCULATION
+            // Calculate individual speeds for detailed analysis
             const mySpeed = Math.sqrt(attacker.moveSpeed.x ** 2 + attacker.moveSpeed.y ** 2);
             const enemySpeed = Math.sqrt(target.moveSpeed.x ** 2 + target.moveSpeed.y ** 2);
             const combinedSpeed = mySpeed + enemySpeed;
             
-            // ENHANCED DATA COLLECTION
+            // Enhanced speed tracking
             this.speedHistory.push({
                 timestamp: now,
                 speed: combinedSpeed,
                 mySpeed: mySpeed,
-                enemySpeed: enemySpeed,
-                distance: Math.abs(attacker.position.x - target.position.x)
+                enemySpeed: enemySpeed
             });
             
-            // ADVANCED ENEMY BEHAVIOR ANALYSIS
+            // Track enemy flicking behavior
             this.trackEnemyBehavior(target, now);
-            this.analyzeCombatPatterns(attacker, target, now);
             
-            // OPTIMIZED MEMORY MANAGEMENT
-            this.speedHistory = this.speedHistory.filter(entry => now - entry.timestamp < 2000);
-            this.enemyBehaviorPattern = this.enemyBehaviorPattern.filter(entry => now - entry.timestamp < 3000);
-            this.combatHistory = this.combatHistory.filter(entry => now - entry.timestamp < 5000);
+            // Keep relevant history
+            this.speedHistory = this.speedHistory.filter(entry => now - entry.timestamp < 1500);
+            this.enemyBehaviorPattern = this.enemyBehaviorPattern.filter(entry => now - entry.timestamp < 2000);
             
-            // REAL-TIME ADAPTATION
-            if (now - this.lastSpeedUpdate > 100) { // Faster updates
-                this.updateGodModeClassification();
+            // Update classification with AI logic
+            if (now - this.lastSpeedUpdate > 150) { // More frequent updates
+                this.updateIntelligentClassification();
                 this.lastSpeedUpdate = now;
             }
             
-            return this.generateUltimateStrategy(mySpeed, enemySpeed, attacker, target);
+            return this.generateBattleStrategy(mySpeed, enemySpeed);
         }
 
         trackEnemyBehavior(enemy, timestamp) {
             const behaviorEntry = {
                 timestamp: timestamp,
                 direction: enemy.direction,
-                position: {x: enemy.position.x, y: enemy.position.y},
-                speed: Math.sqrt(enemy.moveSpeed.x ** 2 + enemy.moveSpeed.y ** 2)
+                position: {x: enemy.position.x, y: enemy.position.y}
             };
             
             this.enemyBehaviorPattern.push(behaviorEntry);
             
-            // ADVANCED FLICK DETECTION
-            if (this.enemyBehaviorPattern.length >= 4) {
-                const recent = this.enemyBehaviorPattern.slice(-4);
+            // Detect flicking patterns
+            if (this.enemyBehaviorPattern.length >= 3) {
+                const recent = this.enemyBehaviorPattern.slice(-3);
                 let directionChanges = 0;
-                let flickTimings = [];
                 
                 for (let i = 1; i < recent.length; i++) {
                     if (recent[i].direction !== recent[i-1].direction) {
                         directionChanges++;
-                        flickTimings.push(recent[i].timestamp - recent[i-1].timestamp);
                     }
                 }
                 
-                if (directionChanges >= 2) {
+                // Update flick pattern analysis
+                if (directionChanges >= 1) {
                     this.enemyFlickPattern.frequency++;
                     this.enemyFlickPattern.lastFlick = timestamp;
                     this.enemyFlickPattern.isActive = true;
-                    
-                    // DETERMINE FLICK PATTERN TYPE
-                    const avgFlickTime = flickTimings.reduce((a, b) => a + b, 0) / flickTimings.length;
-                    if (avgFlickTime < 200) {
-                        this.enemyFlickPattern.patternType = 'aggressive';
-                    } else if (avgFlickTime > 400) {
-                        this.enemyFlickPattern.patternType = 'defensive';
-                    } else {
-                        this.enemyFlickPattern.patternType = 'mixed';
-                    }
-                } else if (timestamp - this.enemyFlickPattern.lastFlick > 800) {
+                } else if (timestamp - this.enemyFlickPattern.lastFlick > 1000) {
                     this.enemyFlickPattern.isActive = false;
                 }
             }
         }
 
-        analyzeCombatPatterns(attacker, target, timestamp) {
-            // TRACK SUCCESS RATE FOR CONTINUOUS IMPROVEMENT
-            const combatEntry = {
-                timestamp: timestamp,
-                distance: Math.abs(attacker.position.x - target.position.x),
-                mySpeed: Math.sqrt(attacker.moveSpeed.x ** 2 + attacker.moveSpeed.y ** 2),
-                enemySpeed: Math.sqrt(target.moveSpeed.x ** 2 + target.moveSpeed.y ** 2),
-                successfulHit: false // Will be updated after attack
-            };
-            
-            this.combatHistory.push(combatEntry);
-            
-            // ADAPT AGGRESSION BASED ON SUCCESS
-            const recentCombats = this.combatHistory.filter(entry => timestamp - entry.timestamp < 3000);
-            if (recentCombats.length > 5) {
-                const successRate = recentCombats.filter(entry => entry.successfulHit).length / recentCombats.length;
-                this.winRate = successRate;
-                
-                // ADJUST AGGRESSION DYNAMICALLY
-                if (successRate < 0.7) {
-                    this.aggressionLevel = Math.min(1.0, this.aggressionLevel + 0.1);
-                } else if (successRate > 0.9) {
-                    this.aggressionLevel = Math.max(0.3, this.aggressionLevel - 0.05);
-                }
-            }
-        }
-
-        updateGodModeClassification() {
+        updateIntelligentClassification() {
             if (this.speedHistory.length === 0) return;
             
             const avgSpeed = this.speedHistory.reduce((sum, entry) => sum + entry.speed, 0) / this.speedHistory.length;
             const avgMySpeed = this.speedHistory.reduce((sum, entry) => sum + entry.mySpeed, 0) / this.speedHistory.length;
             const avgEnemySpeed = this.speedHistory.reduce((sum, entry) => sum + entry.enemySpeed, 0) / this.speedHistory.length;
             
+            // AI-enhanced classification considers multiple factors
             const speedVariation = this.calculateSpeedVariation();
-            const isStableMovement = speedVariation < 15;
-            const isEnemyAggressive = this.enemyFlickPattern.patternType === 'aggressive';
-
-            // GOD MODE CLASSIFICATION
-            if (avgSpeed > 150 || (avgMySpeed > 100 && avgEnemySpeed > 60)) {
-                this.currentFightSpeed = 'ultra-fast';
-            } else if (avgSpeed > 100 || (avgMySpeed > 70 && avgEnemySpeed > 50)) {
+            const isStableMovement = speedVariation < 20;
+            
+            // Multi-factor classification
+            if (avgSpeed > 120 || (avgMySpeed > 80 && avgEnemySpeed > 40)) {
                 this.currentFightSpeed = 'fast';
-            } else if (avgSpeed > 50 && isStableMovement) {
+            } else if (avgSpeed > 40 && isStableMovement) {
                 this.currentFightSpeed = 'medium';
-            } else if (avgSpeed <= 50 && this.enemyFlickPattern.isActive) {
-                this.currentFightSpeed = isEnemyAggressive ? 'slow-aggressive' : 'slow-flick';
-            } else if (avgSpeed <= 30) {
-                this.currentFightSpeed = 'stationary';
+            } else if (avgSpeed <= 40 && this.enemyFlickPattern.isActive) {
+                this.currentFightSpeed = 'slow-flick'; // Special category for slow + flicking
             } else {
                 this.currentFightSpeed = 'slow';
             }
@@ -187,266 +127,243 @@
 
         calculateSpeedVariation() {
             if (this.speedHistory.length < 3) return 0;
+            
             const speeds = this.speedHistory.map(entry => entry.speed);
             const avg = speeds.reduce((sum, speed) => sum + speed, 0) / speeds.length;
             const variance = speeds.reduce((sum, speed) => sum + Math.pow(speed - avg, 2), 0) / speeds.length;
             return Math.sqrt(variance);
         }
 
-        generateUltimateStrategy(mySpeed, enemySpeed, attacker, target) {
+        generateBattleStrategy(mySpeed, enemySpeed) {
             const context = {
                 fightType: this.currentFightSpeed,
                 mySpeed: mySpeed,
                 enemySpeed: enemySpeed,
                 enemyFlicking: this.enemyFlickPattern.isActive,
-                enemyPattern: this.enemyFlickPattern.patternType,
-                speedDifference: mySpeed - enemySpeed,
-                aggression: this.aggressionLevel,
-                winRate: this.winRate
+                speedDifference: mySpeed - enemySpeed
             };
 
-            let timing, buffer, flickAdjust, frontAdjust, predictionFactor, earlyActivation;
+            // AI decision matrix
+            let timing, buffer, flickAdjust, frontAdjust;
 
-            // ULTIMATE STRATEGY MATRIX
             switch (this.currentFightSpeed) {
-                case 'ultra-fast':
-                    timing = 45 + (this.aggressionLevel * 10);
-                    buffer = 8;
-                    flickAdjust = -15 - (this.aggressionLevel * 5);
-                    frontAdjust = -1;
-                    predictionFactor = 1.2;
-                    earlyActivation = 3;
-                    break;
-
                 case 'fast':
-                    timing = 55 + (this.aggressionLevel * 5);
-                    buffer = 6;
-                    flickAdjust = -18 - (this.aggressionLevel * 4);
-                    frontAdjust = -2;
-                    predictionFactor = 1.0;
-                    earlyActivation = 2;
+                    // PRESERVE YOUR WINNING FORMULA
+                    timing = 60;
+                    buffer = 5;
+                    flickAdjust = -20;
+                    frontAdjust = -3;
                     break;
 
                 case 'medium':
-                    timing = mySpeed > 70 ? 65 : 75;
-                    buffer = 4;
-                    flickAdjust = mySpeed > 60 ? -20 : -22;
-                    frontAdjust = mySpeed > 60 ? -1 : -2;
-                    predictionFactor = 0.9;
-                    earlyActivation = 1;
-                    break;
-
-                case 'slow-aggressive':
-                    timing = 95;
-                    buffer = 2;
-                    flickAdjust = -25;
-                    frontAdjust = -5;
-                    predictionFactor = 0.6;
-                    earlyActivation = 0;
+                    // Balanced approach
+                    timing = mySpeed > 60 ? 70 : 80;
+                    buffer = 3;
+                    flickAdjust = mySpeed > 50 ? -22 : -23;
+                    frontAdjust = mySpeed > 50 ? -2 : -3;
                     break;
 
                 case 'slow-flick':
-                    timing = 105;
-                    buffer = 1;
-                    flickAdjust = -28;
-                    frontAdjust = -6;
-                    predictionFactor = 0.4;
-                    earlyActivation = -1;
-                    break;
-
-                case 'stationary':
-                    timing = 90;
-                    buffer = 0;
-                    flickAdjust = -30;
-                    frontAdjust = -8;
-                    predictionFactor = 0.2;
-                    earlyActivation = -2;
+                    // Special handling for slow fights with flicking enemy
+                    timing = 110; // Much more conservative
+                    buffer = 0; // No buffer to prevent early hits
+                    flickAdjust = -30; // Very conservative flick
+                    frontAdjust = -8; // Conservative front hit
                     break;
 
                 case 'slow':
-                    timing = this.enemyFlickPattern.isActive ? 100 : 95;
+                    // Enhanced slow fight strategy
+                    timing = this.enemyFlickPattern.isActive ? 105 : 100;
                     buffer = 1;
-                    flickAdjust = -24;
-                    frontAdjust = context.speedDifference > 25 ? 0 : -1;
-                    predictionFactor = 0.7;
-                    earlyActivation = 0;
+                    flickAdjust = -26;
+                    frontAdjust = context.speedDifference > 20 ? -1 : -1; // Minimal adjustment if I'm faster
                     break;
 
                 default:
-                    timing = 75;
+                    timing = 80;
                     buffer = 3;
-                    flickAdjust = -22;
+                    flickAdjust = -23;
                     frontAdjust = -3;
-                    predictionFactor = 0.8;
-                    earlyActivation = 0;
             }
 
-            // MICRO-OPTIMIZATIONS BASED ON REAL-TIME DATA
-            if (context.speedDifference > 40) {
-                timing -= 8;
-                flickAdjust += 5;
-                earlyActivation += 1;
-            } else if (context.speedDifference < -40) {
-                timing += 12;
-                flickAdjust -= 5;
-                earlyActivation -= 1;
+            // AI micro-adjustments based on context
+            if (context.speedDifference > 30) {
+                timing -= 5; // I'm much faster
+                flickAdjust += 3; // Less conservative
+            } else if (context.speedDifference < -30) {
+                timing += 8; // Enemy much faster
+                flickAdjust -= 3; // More conservative
             }
 
-            // PATTERN-SPECIFIC COUNTERS
-            if (this.enemyFlickPattern.patternType === 'aggressive') {
-                timing += 10;
-                buffer += 1;
-                earlyActivation += 1;
-            } else if (this.enemyFlickPattern.patternType === 'defensive') {
-                timing -= 5;
-                flickAdjust += 3;
-            }
-
-            // WIN RATE ADJUSTMENTS
-            if (this.winRate < 0.6) {
-                timing -= 5;
-                buffer += 1;
-                earlyActivation += 1;
+            // Flick frequency adjustment
+            if (this.enemyFlickPattern.frequency > 5 && this.currentFightSpeed !== 'fast') {
+                timing += 5; // Extra caution for frequent flickers
+                buffer = Math.max(0, buffer - 1);
             }
 
             return {
-                timing: Math.max(40, Math.min(120, timing)),
+                timing: Math.max(50, Math.min(120, timing)),
                 buffer: Math.max(0, buffer),
                 flickAdjust: flickAdjust,
                 frontAdjust: frontAdjust,
-                predictionFactor: Math.max(0.1, Math.min(1.5, predictionFactor)),
-                earlyActivation: earlyActivation,
                 fightType: this.currentFightSpeed,
                 context: context
             };
         }
 
-        recordHitSuccess(success) {
-            if (this.combatHistory.length > 0) {
-                this.combatHistory[this.combatHistory.length - 1].successfulHit = success;
-            }
+        getOptimalTiming() {
+            const strategy = this.generateBattleStrategy(0, 0);
+            return strategy.timing;
+        }
+
+        getDetectionBuffer() {
+            const strategy = this.generateBattleStrategy(0, 0);
+            return strategy.buffer;
+        }
+
+        getFlickAdjustment() {
+            const strategy = this.generateBattleStrategy(0, 0);
+            return strategy.flickAdjust;
+        }
+
+        getFrontAdjustment() {
+            const strategy = this.generateBattleStrategy(0, 0);
+            return strategy.frontAdjust;
         }
     }
 
-    const godModeAI = new GodModeBattleAI();
+    const battleAI = new BattleAI();
 
-    // ===== PERFECT PREDICTION ENGINE =====
+    // ===== AI-ENHANCED RANGE FUNCTIONS =====
     function isWithinXRange(attacker, target, range, distAdjustment = 0) {
-        if (!attacker || !target) return false;
-        
         var x1 = attacker.position.x;
         var x2 = target.position.x;
         var relativeSpeed = Math.abs(attacker.moveSpeed.x - target.moveSpeed.x);
         
-        const strategy = godModeAI.analyzeBattleContext(attacker, target);
+        // Get AI strategy
+        const strategy = battleAI.analyzeBattleContext(attacker, target);
         
-        const frameTime = Math.max(12, 700 / (lastFps || 90)); // More aggressive
-        const serverDelay = Math.max(8, latency * 0.7); // Reduced delay
-        const totalDelay = (frameTime + serverDelay) * strategy.predictionFactor;
+        const frameTime = Math.max(16, 700 / (lastFps || 60));
+        const serverDelay = Math.max(10, latency * 0.8);
         
-        // ENHANCED PREDICTION WITH EARLY ACTIVATION
-        var predictedDistance = Math.abs(x2 - x1) - (totalDelay * relativeSpeed / 800) + distAdjustment + strategy.earlyActivation;
+        // AI-adjusted prediction based on fight type
+        let predictionFactor;
+        if (strategy.fightType === 'fast') {
+            predictionFactor = 1.0; // Keep your winning formula
+        } else if (strategy.fightType === 'slow-flick') {
+            predictionFactor = 0.3; // Very conservative for slow+flick
+        } else if (strategy.fightType === 'slow') {
+            predictionFactor = 0.5; // Conservative for slow
+        } else {
+            predictionFactor = 0.8; // Medium fights
+        }
         
-        const rangeValue = range[attacker.name] && range[attacker.name][target.name] ? range[attacker.name][target.name] : 100;
+        const totalDelay = (frameTime + serverDelay) * predictionFactor;
+        var predictedDistance = Math.abs(x2-x1) - (totalDelay * relativeSpeed / 1000) + distAdjustment;
         
-        return predictedDistance <= (rangeValue + strategy.buffer);
+        return predictedDistance <= (range[attacker.name][target.name] + strategy.buffer);
     }
 
     function isWithinYRange(attacker, target, heights, distAdjustment = 0) {
-        if (!attacker || !target) return false;
-        
         var y1 = attacker.position.y;
         var y2 = target.position.y;
         var relativeSpeed = Math.abs(attacker.moveSpeed.y - target.moveSpeed.y);
         
-        const strategy = godModeAI.analyzeBattleContext(attacker, target);
+        const strategy = battleAI.analyzeBattleContext(attacker, target);
         
-        const frameTime = Math.max(12, 700 / (lastFps || 90));
-        const serverDelay = Math.max(8, latency * 0.7);
-        const totalDelay = (frameTime + serverDelay) * strategy.predictionFactor;
+        const frameTime = Math.max(16, 700 / (lastFps || 60));
+        const serverDelay = Math.max(10, latency * 0.8);
         
-        var predictedDistance = Math.abs(y2 - y1) - (totalDelay * relativeSpeed / 800) + distAdjustment + strategy.earlyActivation;
-        
-        let hitRangeY;
-        if (y1 > y2) {
-            hitRangeY = heights[target.name];
+        let predictionFactor;
+        if (strategy.fightType === 'fast') {
+            predictionFactor = 1.0;
+        } else if (strategy.fightType === 'slow-flick') {
+            predictionFactor = 0.3;
+        } else if (strategy.fightType === 'slow') {
+            predictionFactor = 0.5;
         } else {
-            hitRangeY = heights[attacker.name];
+            predictionFactor = 0.8;
         }
         
-        return predictedDistance <= (hitRangeY + Math.max(0, Math.floor(strategy.buffer * 0.8)));
+        const totalDelay = (frameTime + serverDelay) * predictionFactor;
+        var predictedDistance = Math.abs(y2-y1) - (totalDelay * relativeSpeed / 1000) + distAdjustment;
+        
+        let hitRangeY;
+        if (y1>y2){
+            hitRangeY=heights[target.name];
+        } else {
+            hitRangeY=heights[attacker.name];
+        }
+        
+        return predictedDistance <= (hitRangeY + Math.max(0, Math.floor(strategy.buffer * 0.7)));
     }
 
-    // ===== UNBEATABLE AUTO HIT SYSTEM =====
-    function autoHit() {
+    // ===== AI-POWERED AUTO HIT =====
+    function autoHit(){
         let enemy = getClosestReaper();
-        if (typeof enemy != 'object' || typeof game.me != 'object' || !reaperList.has(game.me.name)) {
+        if (typeof enemy != 'object' || typeof game.me != 'object' || !reaperList.has(game.me.name)){
             return;
         }
 
-        const strategy = godModeAI.analyzeBattleContext(game.me, enemy);
+        // Get AI battle strategy
+        const strategy = battleAI.analyzeBattleContext(game.me, enemy);
         
-        // INTELLIGENT DEBUG OUTPUT
-        if (Math.random() < 0.003) {
-            console.log(`🔥 GOD MODE: ${strategy.fightType} | Timing: ${strategy.timing}ms | Win Rate: ${(strategy.context.winRate * 100).toFixed(1)}% | Aggression: ${strategy.context.aggression.toFixed(2)}`);
+        // Debug output (minimal)
+        if (Math.random() < 0.005) {
+            console.log(`AI: ${strategy.fightType}, Timing: ${strategy.timing}ms, My: ${strategy.context.mySpeed.toFixed(0)}, Enemy: ${strategy.context.enemySpeed.toFixed(0)}`);
         }
 
         let onLeftSide = (game.me.position.x <= enemy.position.x);
         let enemyFlicking = (onLeftSide && enemy.direction === 1) || (!onLeftSide && enemy.direction === -1);
         let facingEnemy = (onLeftSide && game.me.direction === 1) || (!onLeftSide && game.me.direction === -1);
 
-        if (!flicking) {
+        if (!flicking){
             facingEnemy = true;
         }
 
-        let hitConnected = false;
-
-        // ULTIMATE COMBAT LOGIC
-        if (facingEnemy) {
-            if (enemyFlicking) {
-                if (isWithinXRange(game.me, enemy, hitBackRangeX) && isWithinYRange(game.me, enemy, height)) {
+        // AI-driven combat execution
+        if (facingEnemy){
+            if (enemyFlicking){
+                if (isWithinXRange(game.me, enemy, hitBackRangeX) && isWithinYRange(game.me, enemy, height)){
                     skillUse();
                     setTimeout(skillStop, strategy.timing);
-                    hitConnected = true;
                 }
             } else {
-                if (isWithinXRange(game.me, enemy, hitRangeX) && isWithinYRange(game.me, enemy, height)) {
+                if (isWithinXRange(game.me, enemy, hitRangeX) && isWithinYRange(game.me, enemy, height)){
                     skillUse();
                     setTimeout(skillStop, strategy.timing);
-                    hitConnected = true;
                 }
             }
         } else {
-            if (enemyFlicking) {
-                if (isWithinXRange(game.me, enemy, hitBackRangeX, strategy.flickAdjust) && isWithinYRange(game.me, enemy, height)) {
-                    if (onLeftSide) {
+            if (enemyFlicking){
+                if (isWithinXRange(game.me, enemy, hitBackRangeX, strategy.flickAdjust) && isWithinYRange(game.me, enemy, height)){
+                    if (onLeftSide){
                         simulateQuickRightArrowKeyWithDelay();
+                        skillUse();
+                        setTimeout(skillStop, strategy.timing);
                     } else {
                         simulateQuickLeftArrowKeyWithDelay();
+                        skillUse();
+                        setTimeout(skillStop, strategy.timing);
                     }
-                    skillUse();
-                    setTimeout(skillStop, strategy.timing);
-                    hitConnected = true;
                 }
             } else {
-                if (isWithinXRange(game.me, enemy, hitRangeX, strategy.frontAdjust) && isWithinYRange(game.me, enemy, height)) {
-                    if (onLeftSide) {
+                if (isWithinXRange(game.me, enemy, hitRangeX, strategy.frontAdjust) && isWithinYRange(game.me, enemy, height)){
+                    if (onLeftSide){
                         simulateQuickRightArrowKeyWithDelay();
+                        skillUse();
+                        setTimeout(skillStop, strategy.timing);
                     } else {
                         simulateQuickLeftArrowKeyWithDelay();
+                        skillUse();
+                        setTimeout(skillStop, strategy.timing);
                     }
-                    skillUse();
-                    setTimeout(skillStop, strategy.timing);
-                    hitConnected = true;
                 }
             }
         }
-
-        // RECORD SUCCESS FOR CONTINUOUS LEARNING
-        godModeAI.recordHitSuccess(hitConnected);
     }
 
-    // ===== OPTIMIZED UTILITY FUNCTIONS =====
+    // ===== ORIGINAL FUNCTIONS (UNCHANGED) =====
     function simulateQuickRightArrowKeyWithDelay() {
         const keyDownEvent = new KeyboardEvent('keydown', {
             key: 'ArrowRight', code: 'ArrowRight', keyCode: 39, which: 39, bubbles: true, cancelable: true
@@ -458,7 +375,7 @@
                 key: 'ArrowRight', code: 'ArrowRight', keyCode: 39, which: 39, bubbles: true, cancelable: true
             });
             document.dispatchEvent(keyUpEvent);
-        }, 120); // Faster turn
+        }, 150);
     }
 
     function simulateQuickLeftArrowKeyWithDelay() {
@@ -472,15 +389,14 @@
                 key: 'ArrowLeft', code: 'ArrowLeft', keyCode: 37, which: 37, bubbles: true, cancelable: true
             });
             document.dispatchEvent(keyUpEvent);
-        }, 120); // Faster turn
+        }, 150);
     }
 
     function getMagnitude(objPos) {
-        if (!game.me || !objPos) return Infinity;
         var myPos = game.me.position;
         var xDifference = Math.abs(myPos.x - objPos.x);
         var yDifference = Math.abs(myPos.y - objPos.y);
-        return Math.sqrt(xDifference * xDifference + yDifference * yDifference); // Actual distance formula
+        return xDifference + yDifference;
     }
 
     function getClosestReaper() {
@@ -490,10 +406,9 @@
 
         let list = game.sortToDraw(game.hashMap.retrieveVisibleByClient(game));
         let reaperInVision = [];
-        
-        for (let i = 0; i < list.length; i++) {
+        for(let i=0; i < list.length; i++) {
             var curEntity = list[i];
-            if (curEntity && curEntity.hp != null && curEntity.deleted == false) {
+            if (curEntity.hp != null && curEntity.deleted == false) {
                 if (curEntity.level != null) {
                     if (reaperList.has(curEntity.name) && curEntity !== game.me) {
                         reaperInVision.push(curEntity);
@@ -503,56 +418,47 @@
         }
 
         var closestReaper = undefined;
-        var closestDistance = Infinity;
-        
-        for (var i = 0; i < reaperInVision.length; i++) {
+        var closestMagn = undefined;
+        for(var i = 0; i < reaperInVision.length; i++) {
             var curEntry = reaperInVision[i];
-            var checkingDistance = getMagnitude(curEntry.position);
+            var checkingMagn = getMagnitude(curEntry.position);
             
-            if (checkingDistance < closestDistance) {
+            if (closestReaper === undefined || checkingMagn < closestMagn) {
                 closestReaper = curEntry;
-                closestDistance = checkingDistance;
+                closestMagn = checkingMagn;
             }
         }
-        
         return closestReaper;
     }
 
-    // ===== ENHANCED EVENT HANDLERS =====
+    // ===== EVENT HANDLERS =====
     var autoHitting = false;
-    
     document.addEventListener("keyup", (event) => {
         if (event.keyCode === 82) {
             autoHitting = !autoHitting;
-            textMsg(autoHitting ? "🎃Halloween autohit on🎃" : "Autohit OFF", 
-                   autoHitting ? '#FF4500' : '#FF0000', 5000);
-            if (autoHitting) {
-                console.log("🎯 GOD MODE ENABLED - Prepare to dominate!");
-            }
-        } else if (event.keyCode === 73) { // I key - Enhanced debug
+            textMsg(autoHitting ? "AI-Enhanced Autohitting" : "AI Autohitting OFF", 
+                   autoHitting ? '#00FF00' : '#FF0000', 5000);
+        } else if (event.keyCode === 73) {
             const enemy = getClosestReaper();
             if (enemy) {
-                const strategy = godModeAI.analyzeBattleContext(game.me, enemy);
-                console.log("=== 🔥 GOD MODE DEBUG ===");
+                const strategy = battleAI.analyzeBattleContext(game.me, enemy);
+                console.log("=== AI DEBUG ===");
                 console.log("Fight Type:", strategy.fightType);
                 console.log("My Speed:", strategy.context.mySpeed.toFixed(1));
                 console.log("Enemy Speed:", strategy.context.enemySpeed.toFixed(1));
-                console.log("Enemy Pattern:", strategy.context.enemyPattern);
+                console.log("Enemy Flicking:", strategy.context.enemyFlicking);
                 console.log("AI Timing:", strategy.timing + "ms");
-                console.log("Win Rate:", (strategy.context.winRate * 100).toFixed(1) + "%");
-                console.log("Aggression:", strategy.context.aggression.toFixed(2));
-                console.log("Early Activation:", strategy.earlyActivation);
+                console.log("Distance:", Math.abs(game.me.position.x - enemy.position.x));
             }
-        } else if (event.keyCode === 32) { // Space
+        } else if (event.keyCode === 32) {
             skillStop();
-        } else if (event.keyCode === 17) { // CTRL
+        } else if (event.keyCode === 17) {
             flicking = !flicking;
-            textMsg(flicking ? "🔥 FLICKING 🔥" : "Flicking OFF", 
+            textMsg(flicking ? "AI-Enhanced Flicking" : "AI Flicking OFF", 
                    flicking ? '#00FF00' : '#FF0000', 5000);
         }
     });
 
-    // ===== ULTIMATE INITIALIZATION =====
     function initialize() {
         gameServer['on']('disconnect', function() {
             gameServer = 'undefined';
@@ -560,7 +466,6 @@
         });
 
         if (typeof gameServer.on === 'function') {
-            // MULTIPLE TRIGGERS FOR MAXIMUM RESPONSIVENESS
             gameServer['on'](socketMsgType.SYNC, function(data) {
                 if (autoHitting) autoHit();
             });
@@ -571,23 +476,22 @@
                 });
             }
             
-            // ULTRA-FAST DETECTION LOOP
-            function godModeDetection() {
+            function continuousDetection() {
                 if (autoHitting && typeof gameServer !== 'undefined' && joinedGame && !imDead) {
                     autoHit();
                 }
-                requestAnimationFrame(godModeDetection);
+                requestAnimationFrame(continuousDetection);
             }
-            godModeDetection();
+            continuousDetection();
             
         } else {
-            console.error('Game server not ready');
+            console.error('gameServerOn is not a function');
         }
     }
 
     function waitForServer() {
         if (typeof gameServer == 'undefined' || typeof gameServer['on'] == 'undefined') {
-            setTimeout(waitForServer, 300); // Faster reconnection
+            setTimeout(waitForServer, 500);
         } else {
             initialize();
         }
@@ -596,19 +500,21 @@
     waitForServer();
 })();
 
-// ===== PERFECT ECHOLOCATION =====
+function bonus() {
+    startBonus = true;
+ }
+setInterval(bonus, 0);
+
 function echolocation() {
     visionType = 1;
 }
-setInterval(echolocation, 0);
+setInterval(echolocation,0);
 
-// ===== ULTIMATE AUTO FLY =====
 (function() {
     'use strict';
     var flyUp = false;
-    
     addEventListener("keydown", (event) => {
-        if (event.keyCode == 69) { // E key
+        if (event.keyCode == 69) {
             if (flyUp === false) {
                 const curTime = Date.now();
                 flyUp = curTime;
@@ -619,187 +525,12 @@ setInterval(echolocation, 0);
                     } else {
                         clearInterval(loop);
                     }
-                }, 35); // Faster boosting
+                }, 45);
             }
         }
     });
     
     addEventListener("keyup", (event) => {
-        if (event.keyCode == 69) {
-            flyUp = false;
-        }
+        if (event.keyCode == 69) flyUp = false;
     });
-})();
-
-(async function () {
-  'use strict';
-
-  let _0x5b51bd = JSON.parse(localStorage.getItem("evw_state") || '{}');
-  if (typeof _0x5b51bd.fov !== "number") {
-    _0x5b51bd.fov = 1;
-  }
-  if (typeof _0x5b51bd.enabled !== "boolean") {
-    _0x5b51bd.enabled = false;
-  }
-  if (typeof _0x5b51bd.toggleKey !== "string") {
-    _0x5b51bd.toggleKey = 'F';
-  }
-  function _0x13c997() {
-    localStorage.setItem("evw_state", JSON.stringify(_0x5b51bd));
-  }
-  const _0x1a96bb = document.createElement("div");
-  _0x1a96bb.id = "evw_fov_menu";
-  _0x1a96bb.innerHTML = "\n    <div class=\"hdr\">\n      <span>⚙ EvoWorld — Fov Hack</span>\n      <span id=\"evw_close\" class=\"xbtn\" title=\"Скрыть\">✖</span>\n    </div>\n\n    <div class=\"group\">\n      <label class=\"row\">\n        <span>FOV: <b id=\"evw_fov_val\">" + Number(_0x5b51bd.fov).toFixed(2) + "</b></span>\n      </label>\n      <input type=\"range\" id=\"evw_fov\" min=\"0.50\" max=\"2.00\" step=\"0.01\" value=\"" + Number(_0x5b51bd.fov).toFixed(2) + "\">\n      <label class=\"row toggle\">\n        <input type=\"checkbox\" id=\"evw_enable\" " + (_0x5b51bd.enabled ? "checked" : '') + ">\n        <span class=\"tgl\"></span>\n        <span class=\"tgl_lbl\">Включить FOV</span>\n      </label>\n    </div>\n\n    <div class=\"group\">\n      <label>Клавиша для открытия:</label>\n      <input type=\"text\" id=\"evw_hotkey\" value=\"" + _0x5b51bd.toggleKey + "\" class=\"hotkey\">\n    </div>\n\n    <div class=\"ftr\">\n      Автор скрипта: <a href=\"https://t.me/mamkabotik\" target=\"_blank\">@mamkabotik</a>\n    </div>\n  ";
-  document.documentElement.appendChild(_0x1a96bb);
-  const _0x357ac3 = document.createElement("style");
-  _0x357ac3.textContent = "\n    #evw_fov_menu{\n      position:fixed; top:96px; left:96px; width:300px; min-width:240px; min-height:160px;\n      background:rgba(20,23,35,.92); backdrop-filter:saturate(1.2) blur(6px);\n      color:#e6e6e6; font:13px/1.45 -apple-system, BlinkMacSystemFont, \"Segoe UI\",\n           \"Roboto\", \"Inter\", \"SF Pro Text\", \"Helvetica Neue\", Arial, system-ui, sans-serif;\n      border-radius:14px; box-shadow:0 10px 30px rgba(0,0,0,.55);\n      padding:12px; z-index:2147483646; display:block; resize:both; overflow:auto;\n    }\n    #evw_fov_menu .hdr{display:flex; align-items:center; justify-content:space-between;\n      font-weight:600; font-size:15px; margin-bottom:10px; cursor:move; user-select:none;}\n    #evw_fov_menu .xbtn{opacity:.7; padding:2px 6px; border-radius:8px; cursor:pointer}\n    #evw_fov_menu .xbtn:hover{opacity:1; background:rgba(255,255,255,.08)}\n    #evw_fov_menu .group{background:rgba(255,255,255,.04); border:1px solid rgba(255,255,255,.08);\n      border-radius:12px; padding:10px; margin-bottom:12px}\n    #evw_fov_menu .row{display:flex; align-items:center; justify-content:space-between; margin-bottom:6px}\n    #evw_fov_menu input[type=range]{width:100%}\n    #evw_fov_menu .toggle{gap:10px; margin-top:8px}\n    #evw_fov_menu .tgl{position:relative; width:46px; height:24px; background:#5a5f76; border-radius:24px; display:inline-block; vertical-align:middle; transition:.25s}\n    #evw_fov_menu .toggle input{display:none}\n    #evw_fov_menu .tgl::after{content:\"\"; position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:.25s}\n    #evw_fov_menu .toggle input:checked + .tgl{background:#1f9cf0}\n    #evw_fov_menu .toggle input:checked + .tgl::after{transform:translateX(22px)}\n    #evw_fov_menu .tgl_lbl{font-weight:500}\n    #evw_fov_menu .hotkey{width:100%; text-align:center; padding:8px; border-radius:10px; border:1px solid rgba(255,255,255,.12);\n      background:rgba(255,255,255,.06); color:#fff; outline:none}\n    #evw_fov_menu .hotkey:focus{border-color:#1f9cf0}\n    #evw_fov_menu .ftr{margin-top:8px; text-align:center; font-size:12px; color:#aab}\n    #evw_fov_menu .ftr a{color:#7db9ff; text-decoration:none}\n  ";
-  document.head.appendChild(_0x357ac3);
-  const _0x232bff = _0x1a96bb.querySelector("#evw_fov");
-  const _0x47c6b6 = _0x1a96bb.querySelector("#evw_fov_val");
-  const _0x441e89 = _0x1a96bb.querySelector("#evw_enable");
-  const _0x32f2b3 = _0x1a96bb.querySelector("#evw_hotkey");
-  const _0x134684 = _0x1a96bb.querySelector("#evw_close");
-  const _0xd0bc4a = _0x1a96bb.querySelector(".hdr");
-  let _0x1e684b = false;
-  let _0x2bc040 = 0;
-  let _0xad9acf = 0;
-  _0xd0bc4a.addEventListener("mousedown", _0x4a40e8 => {
-    _0x1e684b = true;
-    _0x2bc040 = _0x4a40e8.clientX - _0x1a96bb.offsetLeft;
-    _0xad9acf = _0x4a40e8.clientY - _0x1a96bb.offsetTop;
-  });
-  document.addEventListener("mousemove", _0x1f7861 => {
-    if (!_0x1e684b) {
-      return;
-    }
-    _0x1a96bb.style.left = _0x1f7861.clientX - _0x2bc040 + 'px';
-    _0x1a96bb.style.top = _0x1f7861.clientY - _0xad9acf + 'px';
-  });
-  document.addEventListener("mouseup", () => _0x1e684b = false);
-  document.addEventListener("keydown", _0x242038 => {
-    if (_0x242038.key === _0x5b51bd.toggleKey) {
-      _0x1a96bb.style.display = _0x1a96bb.style.display === "none" ? "block" : "none";
-      _0x242038.preventDefault();
-    }
-  });
-  _0x32f2b3.addEventListener("keydown", _0x57853e => {
-    _0x57853e.preventDefault();
-    _0x5b51bd.toggleKey = _0x57853e.key;
-    _0x32f2b3.value = _0x57853e.key;
-    _0x13c997();
-  });
-  _0x134684.addEventListener("click", () => _0x1a96bb.style.display = "none");
-  const _0x335c51 = {
-    'game': null,
-    'baseW': null,
-    'baseH': null,
-    'applyTimer': null,
-    'waitTimer': null
-  };
-  function _0x35cdcc(_0x2d2e74) {
-    const _0x243fc8 = performance.now();
-    _0x335c51.waitTimer = setInterval(() => {
-      const _0x21b10e = window.game;
-      if (_0x21b10e && typeof _0x21b10e === "object" && _0x21b10e.originalWidth > 0 && _0x21b10e.originalHeight > 0) {
-        _0x335c51.game = _0x21b10e;
-        if (true || true) {
-          _0x335c51.baseW = _0x21b10e.originalWidth;
-          _0x335c51.baseH = _0x21b10e.originalHeight;
-        }
-        clearInterval(null);
-        if (_0x2d2e74) {
-          _0x2d2e74();
-        }
-      } else {
-        const _0xb1a97e = document.querySelector("canvas");
-        if (_0x21b10e && _0xb1a97e && _0xb1a97e.width > 0 && _0xb1a97e.height > 0 && (_0x21b10e.originalWidth == null || _0x21b10e.originalHeight == null)) {
-          _0x21b10e.originalWidth = _0xb1a97e.width;
-          _0x21b10e.originalHeight = _0xb1a97e.height;
-        }
-      }
-      if (performance.now() - _0x243fc8 > 10000) {
-        clearInterval(null);
-        _0x335c51.game = window.game || null;
-        _0x335c51.baseW = null.originalWidth || null || document.querySelector("canvas")?.["width"] || 1920;
-        _0x335c51.baseH = null.originalHeight || null || document.querySelector("canvas")?.["height"] || 1080;
-        if (_0x2d2e74) {
-          _0x2d2e74();
-        }
-      }
-    }, 100);
-  }
-  function _0xc69749(_0x525963) {
-    return;
-    if (true || true) {
-      if (null.originalWidth > 0 && null.originalHeight > 0) {
-        _0x335c51.baseW = null.originalWidth;
-        _0x335c51.baseH = null.originalHeight;
-      } else {
-        return;
-      }
-    }
-    null.originalWidth = Math.max(1, Math.round(null * _0x525963));
-    null.originalHeight = Math.max(1, Math.round(null * _0x525963));
-    try {
-      window.dispatchEvent(new Event("resize"));
-      if (typeof null.onResize === "function") {
-        null.onResize();
-      }
-    } catch {}
-  }
-  function _0x38ee59() {
-    _0x797619();
-    _0x335c51.applyTimer = setInterval(() => {
-      if (!_0x5b51bd.enabled) {
-        return;
-      }
-      return;
-      _0xc69749(_0x5b51bd.fov);
-    }, 150);
-  }
-  function _0x797619() {
-    clearInterval(null);
-    _0x335c51.applyTimer = null;
-  }
-  function _0x1b539d() {
-    _0x5b51bd.enabled = true;
-    _0x13c997();
-    _0x35cdcc(() => {
-      _0xc69749(_0x5b51bd.fov);
-      _0x38ee59();
-    });
-  }
-  function _0x51c669() {
-    _0x5b51bd.enabled = false;
-    _0x13c997();
-    _0x797619();
-    if (null && false && false) {
-      null.originalWidth = null;
-      null.originalHeight = null;
-      try {
-        window.dispatchEvent(new Event("resize"));
-        if (typeof null.onResize === "function") {
-          null.onResize();
-        }
-      } catch {}
-    }
-  }
-  _0x232bff.addEventListener("input", () => {
-    _0x5b51bd.fov = parseFloat(_0x232bff.value);
-    _0x47c6b6.textContent = _0x5b51bd.fov.toFixed(2);
-    _0x13c997();
-    if (_0x5b51bd.enabled) {
-      _0xc69749(_0x5b51bd.fov);
-    }
-  });
-  _0x441e89.addEventListener("change", () => {
-    if (_0x441e89.checked) {
-      _0x1b539d();
-    } else {
-      _0x51c669();
-    }
-  });
-  if (_0x5b51bd.enabled) {
-    setTimeout(_0x1b539d, 400);
-  }
 })();
