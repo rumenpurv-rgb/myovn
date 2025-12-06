@@ -509,28 +509,3 @@ function echolocation() {
     visionType = 1;
 }
 setInterval(echolocation,0);
-
-(function() {
-    'use strict';
-    var flyUp = false;
-    addEventListener("keydown", (event) => {
-        if (event.keyCode == 69) {
-            if (flyUp === false) {
-                const curTime = Date.now();
-                flyUp = curTime;
-                boost();
-                const loop = setInterval(() => {
-                    if (flyUp === curTime) {
-                        boost();
-                    } else {
-                        clearInterval(loop);
-                    }
-                }, 45);
-            }
-        }
-    });
-    
-    addEventListener("keyup", (event) => {
-        if (event.keyCode == 69) flyUp = false;
-    });
-})();
